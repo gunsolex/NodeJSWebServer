@@ -1,5 +1,29 @@
 const express = require('express');
 const app = express();
+var mysql = require('mysql');
+
+
+//ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'admin' need to call this in mysql database to fix error
+var connection = mysql.createConnection({
+    host: 'localhost',
+    port:'3306',
+    user:'root',
+    password:'admin',
+    database: 'customers'
+});
+
+connection.connect(function(error) //To check whether the database is connected
+{
+    if(error)
+    {
+        console.log(error);
+    }
+    else{
+        console.log('Connected');
+    }
+})
+
+
 
 const courses = 
 [
@@ -9,7 +33,18 @@ const courses =
 ]
 
 app.get('/', (req,res)=>{
-    res.send('HELLO THERE BOY');
+  
+    connection.query('SELECT * from `students`', function(error,results,field)//Results is everything and field just shows the field data 
+    {
+        if(error)
+        {
+            console.log("ERROR QUERYING");
+        }
+        else{
+            
+            res.send(results);
+        }
+    })
 } );
 
 app.get('/api/courses', (req,res)=>{
@@ -22,5 +57,5 @@ app.get('/api/courses/:id', (req,res)=>{
     res.send(course);
 });
 
-const port = process.env.PORT || 3000; //Either specified port or set it to 3000
+const port = process.env.PORT || 3000; //Either specified port or set it to 3000, this is to set whichever port you want to open
 app.listen(port, () => console.log("listening on port 3000"))
